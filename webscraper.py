@@ -14,7 +14,7 @@ def wordCon(webTitle, graphFileName, wordTotals = [dict()]):
             positiveWords.append(word)
         elif w3 < -0.5:
             negativeWords.append(word)
-    
+
     style = Style(font_family='googlefont:Raleway', label_font_size = 18, title_font_size = 18)
     pg = pygal.StackedBar(style=style)
     pg.x_labels = 'Positive Words', 'Negative Words'
@@ -23,7 +23,7 @@ def wordCon(webTitle, graphFileName, wordTotals = [dict()]):
         pg.add(word, [wordTotals[word]["fullCount"], None])
     for word in negativeWords:
         pg.add(word, [None, wordTotals[word]["fullCount"]])
-    pg.render_to_file(graphFileName)
+    pg.render_to_file("static\\{}".format(graphFileName))
 
 def getYelpReviewInfo(link="https://www.yelp.com/biz/bueno-y-sano-amherst"):
     link = link.strip()
@@ -67,6 +67,7 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/bueno-y-sano-amherst"):
                 if wordTotals[word]["fullCount"] > wordTotals[mostCommon[i]]["fullCount"]:
                     if i + 1 == len(mostCommon) or wordTotals[word]["fullCount"] <= wordTotals[mostCommon[i+1]]["fullCount"]:
                         mostCommon[i] = word
+    wordTotals.pop("chicken", None)
     webTitle = root.xpath("//meta[@property = 'og:title']")[0].attrib["content"]
     graphFileName = "{}.svg".format(link.split("/")[-1])
     wordCon(webTitle, graphFileName, wordTotals)
