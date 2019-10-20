@@ -2,19 +2,40 @@ import requests
 from lxml import html
 import string
 import pygal
+from textblob import TextBlob
+from pygal.style import Style
 
-def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-san-francisco?osq=Bars"):
+def wordCon(webTitle, graphFileName, wordTotals = [dict()]):
+    positiveWords = [] 
+    negativeWords = []
+    for word in wordTotals.keys():
+        w3 = TextBlob(word).sentiment.polarity
+        if w3 > 0.5:
+            positiveWords.append(word)
+        elif w3 < -0.5:
+            negativeWords.append(word)
+    
+    style = Style(font_family='googlefont:Raleway', label_font_size = 18, title_font_size = 18)
+    pg = pygal.StackedBar(style=style)
+    pg.x_labels = 'Positive Words', 'Negative Words'
+    pg.title = webTitle
+    for word in positiveWords:
+        pg.add(word, [wordTotals[word]["fullCount"], None])
+    for word in negativeWords:
+        pg.add(word, [None, wordTotals[word]["fullCount"]])
+    pg.render_to_file(graphFileName)
+
+def getYelpReviewInfo(link="https://www.yelp.com/biz/bueno-y-sano-amherst"):
     link = link.strip()
     response = requests.get(link)
     root = html.fromstring(response.content)
-    pageid = root.xpath('//div[@id="super-container"]')[0]
-    reviewlist = pageid.xpath("//ul[contains(@class, 'ylist') and contains(@class,'ylist-bordered') and contains(@class, 'reviews')]/li")
+    pageid = root.xpath("//div[@class='lemon--div__373c0__1mboc border-color--default__373c0__2oFDT']")[0]
+    reviewlist = pageid.xpath("//ul[contains(@class, 'lemon--ul__373c0__1_cxs') and contains(@class, 'undefined') and contains(@class, 'list__373c0__2G8oH')]/li")
     reviewDict = dict()
     for i in range(1, len(reviewlist)):
-        reviews= reviewlist[i].xpath(".//p[@lang='en']/text()")
-        stars= reviewlist[i].xpath("//div[contains(@title, int) and contains(@title, 'star rating')]")
-        starText = stars[i].get('title')
-        reviewDict[str(i)] = {"review":reviews, "starText":starText}
+        reviews= reviewlist[i].xpath(".//span[@class='lemon--span__373c0__3997G']/text()")
+        if len(reviews) > 0:
+            reviewDict[str(i)] = {"review":reviews}
 
     wordDict = dict()   # Stores all words as dicitonary keys
     wordTotals = dict()
@@ -47,6 +68,7 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-sa
                     if i + 1 == len(mostCommon) or wordTotals[word]["fullCount"] <= wordTotals[mostCommon[i+1]]["fullCount"]:
                         mostCommon[i] = word
 
+<<<<<<< HEAD
     pg = pygal.Bar()
     for word in mostCommon:
         pg.add(word,[wordTotals[word]["fullCount"]])
@@ -71,3 +93,9 @@ def getRestaurants(location="Amherst+MA"):
     for link in restaurantList:
         graphNameList.append(getYelpReviewInfo("https://www.yelp.com{}".format(link)))
     return graphNameList
+=======
+    webTitle = root.xpath("//meta[@property = 'og:title']")[0].attrib["content"]
+    graphFileName = "{}.svg".format(link.split("/")[-1])
+    wordCon(webTitle, graphFileName, wordTotals)
+    return graphFileName
+>>>>>>> eeaa844f445b43631302f6988e183579800c9126
