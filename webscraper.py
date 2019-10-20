@@ -1,8 +1,7 @@
 import requests
 from lxml import html
 import string
-
-
+import pygal
 
 def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-san-francisco?osq=Bars"):
     link = link.strip()
@@ -47,12 +46,8 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-sa
                 if wordTotals[word]["fullCount"] > wordTotals[mostCommon[i]]["fullCount"]:
                     if i + 1 == len(mostCommon) or wordTotals[word]["fullCount"] <= wordTotals[mostCommon[i+1]]["fullCount"]:
                         mostCommon[i] = word
-    import pygal
+
     pg = pygal.Bar()
     for word in mostCommon:
         pg.add(word,[wordTotals[word]["fullCount"]])
     pg.render_to_file("wordFreq.svg")
-    pass
-
-
-getYelpReviewInfo()
