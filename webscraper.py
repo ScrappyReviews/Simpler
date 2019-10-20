@@ -67,12 +67,10 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/bueno-y-sano-amherst"):
                 if wordTotals[word]["fullCount"] > wordTotals[mostCommon[i]]["fullCount"]:
                     if i + 1 == len(mostCommon) or wordTotals[word]["fullCount"] <= wordTotals[mostCommon[i+1]]["fullCount"]:
                         mostCommon[i] = word
-
-<<<<<<< HEAD
-    pg = pygal.Bar()
-    for word in mostCommon:
-        pg.add(word,[wordTotals[word]["fullCount"]])
-    pg.render_to_file("wordFreq.svg")
+    webTitle = root.xpath("//meta[@property = 'og:title']")[0].attrib["content"]
+    graphFileName = "{}.svg".format(link.split("/")[-1])
+    wordCon(webTitle, graphFileName, wordTotals)
+    return graphFileName
 
 def getRestaurants(location="Amherst+MA"):
     queryLink = "https://www.yelp.com/search?find_desc=&find_loc={}".format(location)
@@ -93,9 +91,3 @@ def getRestaurants(location="Amherst+MA"):
     for link in restaurantList:
         graphNameList.append(getYelpReviewInfo("https://www.yelp.com{}".format(link)))
     return graphNameList
-=======
-    webTitle = root.xpath("//meta[@property = 'og:title']")[0].attrib["content"]
-    graphFileName = "{}.svg".format(link.split("/")[-1])
-    wordCon(webTitle, graphFileName, wordTotals)
-    return graphFileName
->>>>>>> eeaa844f445b43631302f6988e183579800c9126
