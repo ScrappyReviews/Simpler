@@ -2,6 +2,28 @@ import requests
 from lxml import html
 import string
 import pygal
+from textblob import TextBlob
+from pygal.style import Style
+
+def wordCon(webTitle, wordTotals = [dict()]):
+    positiveWords = [] 
+    negativeWords = []
+    for word in wordTotals.keys():
+        w3 = TextBlob(word).sentiment.polarity
+        if w3 > 0.5:
+            positiveWords.append(word)
+        elif w3 < -0.5:
+            negativeWords.append(word)
+    
+    style = Style(font_family='googlefont:Raleway', label_font_size = 18, title_font_size = 18)
+    pg = pygal.StackedBar(style=style)
+    pg.x_labels = 'Positive Words', 'Negative Words'
+    pg.title = webTitle
+    for word in positiveWords:
+        pg.add(word, [wordTotals[word]["fullCount"], None])
+    for word in negativeWords:
+        pg.add(word, [None, wordTotals[word]["fullCount"]])
+    pg.render_to_file("posNegFreq.svg")
 
 def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-san-francisco?osq=Bars"):
     link = link.strip()
@@ -51,3 +73,5 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-sa
     for word in mostCommon:
         pg.add(word,[wordTotals[word]["fullCount"]])
     pg.render_to_file("wordFreq.svg")
+    webTitle = root.xpath("//meta[@property = 'og:title']")[0].attrib["content"]
+    wordCon(webTitle, wordTotals)
