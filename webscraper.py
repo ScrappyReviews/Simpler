@@ -51,3 +51,23 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-sa
     for word in mostCommon:
         pg.add(word,[wordTotals[word]["fullCount"]])
     pg.render_to_file("wordFreq.svg")
+
+def getRestaurants(location="Amherst+MA"):
+    queryLink = "https://www.yelp.com/search?find_desc=&find_loc={}".format(location)
+    queryResponse = requests.get(queryLink)
+    root = html.fromstring(queryResponse.content)
+    restaurantContainer = root.xpath("//ul[contains(@class,'lemon--ul__373c0__1_cxs') and contains(@class,'undefined') and contains(@class,'list__373c0__2G8oH')]")
+    restaurantList = []    
+    for i in range(len(restaurantContainer)):
+        search = restaurantContainer[i].xpath("//a[contains(@class,'lemon--a__373c0__IEZFH') and contains(@class,'link__373c0__29943') and contains(@class,'photo-box-link__373c0__1AvT5') and contains(@class,'link-color--blue-dark__373c0__1mhJo') and contains(@class,'link-size--default__373c0__1skgq')]")
+        if len(search) > 0:
+            for item in search:
+                if "biz" in item.attrib["href"][:5]:
+                    print(item.attrib["href"])
+                    restaurantList.append(item.attrib["href"])
+    restaurantSet = set(restaurantList)
+    restaurantList = [link for link in restaurantSet]
+    graphNameList = []
+    for link in restaurantList:
+        graphNameList.append(getYelpReviewInfo("https://www.yelp.com{}".format(link)))
+    return graphNameList
