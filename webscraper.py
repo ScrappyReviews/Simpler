@@ -51,3 +51,5 @@ def getYelpReviewInfo(link="https://www.yelp.com/biz/alchemist-bar-and-lounge-sa
     for word in mostCommon:
         pg.add(word,[wordTotals[word]["fullCount"]])
     pg.render_to_file("wordFreq.svg")
+    pass
+getYelpReviewInfo()
