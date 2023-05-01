@@ -1,4 +1,4 @@
-Flask==1.0.3
+Flask==2.3.2
 lxml==4.3.4
 pygal==2.4.0
 requests==2.22.0
